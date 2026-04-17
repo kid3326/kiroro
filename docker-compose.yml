@@ -1,0 +1,86 @@
+# ============================================
+# Docker Compose: 로컬 개발 환경
+# 프론트엔드, 백엔드, PostgreSQL, Redis
+# ============================================
+version: '3.8'
+
+services:
+  # --- PostgreSQL 15 ---
+  postgres:
+    image: postgres:15-alpine
+    container_name: retail-dashboard-db
+    environment:
+      POSTGRES_DB: retail_dashboard
+      POSTGRES_USER: dashboard_user
+      POSTGRES_PASSWORD: dashboard_pass_local
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dashboard_user -d retail_dashboard"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - retail-network
+
+  # --- Redis 7 ---
+  redis:
+    image: redis:7-alpine
+    container_name: retail-dashboard-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - retail-network
+
+  # --- Backend (Spring Boot) ---
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: retail-dashboard-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_dashboard
+      SPRING_DATASOURCE_USERNAME: dashboard_user
+      SPRING_DATASOURCE_PASSWORD: dashboard_pass_local
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - retail-network
+
+  # --- Frontend (Nginx + Vue.js) ---
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: retail-dashboard-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - retail-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  retail-network:
+    driver: bridge

@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: retail-dashboard
+
+  profiles:
+    active: local
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# Mock API 설정
+mock:
+  api:
+    token: mock-api-secret-token-2024
+    base-url: http://localhost:8080

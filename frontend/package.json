@@ -1,0 +1,35 @@
+{
+  "name": "retail-dashboard-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint . --ext .vue,.js,.jsx,.ts,.tsx"
+  },
+  "dependencies": {
+    "vue": "^3.4.0",
+    "vue-router": "^4.3.0",
+    "pinia": "^2.2.0",
+    "axios": "^1.7.0",
+    "primevue": "^3.53.0",
+    "primeicons": "^7.0.0",
+    "primeflex": "^3.3.0",
+    "echarts": "^5.5.0",
+    "vue-echarts": "^6.7.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.0",
+    "typescript": "^5.5.0",
+    "vite": "^5.4.0",
+    "vite-plugin-pwa": "^0.20.0",
+    "vue-tsc": "^2.1.0",
+    "vitest": "^2.1.0",
+    "@vue/test-utils": "^2.4.0",
+    "jsdom": "^25.0.0"
+  }
+}
