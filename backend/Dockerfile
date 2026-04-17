@@ -6,6 +6,8 @@
 # --- Stage 1: Build ---
 FROM eclipse-temurin:17-jdk AS builder
 
+RUN apt-get update && apt-get install -y --no-install-recommends curl unzip && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # Gradle wrapper 및 빌드 설정 복사 (캐시 활용)
@@ -16,10 +18,10 @@ COPY gradle/ gradle/
 RUN chmod +x gradlew && \
     if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then \
       GRADLE_VERSION=$(grep distributionUrl gradle/wrapper/gradle-wrapper.properties | sed 's/.*gradle-\(.*\)-bin.zip/\1/') && \
-      wget -q "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -O /tmp/gradle.zip && \
-      unzip -q -j /tmp/gradle.zip "gradle-${GRADLE_VERSION}/lib/plugins/gradle-wrapper-*.jar" -d gradle/wrapper/ && \
-      mv gradle/wrapper/gradle-wrapper-*.jar gradle/wrapper/gradle-wrapper.jar 2>/dev/null || true && \
-      rm -f /tmp/gradle.zip; \
+      curl -sL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o /tmp/gradle.zip && \
+      unzip -q /tmp/gradle.zip -d /tmp/gradle && \
+      cp /tmp/gradle/gradle-${GRADLE_VERSION}/lib/plugins/gradle-wrapper-*.jar gradle/wrapper/gradle-wrapper.jar && \
+      rm -rf /tmp/gradle.zip /tmp/gradle; \
     fi
 
 # 의존성 다운로드 (소스 변경 시 캐시 재사용)
